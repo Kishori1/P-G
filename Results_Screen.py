@@ -9,6 +9,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 class ClickableLabel(QLabel):
     clicked = pyqtSignal()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setCursor(Qt.PointingHandCursor)  # Show hand icon
+
     def mousePressEvent(self, event):
         self.clicked.emit()
         super().mousePressEvent(event)
@@ -17,13 +21,13 @@ class ClickableLabel(QLabel):
 class ResultScreen(QWidget):
     detail_requested = pyqtSignal(str)
 
-    def __init__(self, back_callback, repeat_callback):
+    def __init__(self, back_callback, repeat_callback, back1_callback):
         super().__init__()
 
         outer_layout = QVBoxLayout(self)
         outer_layout.setContentsMargins(0, 40, 0, 40)
 
-        # White card container (just like capturing screen)
+        # White card container
         white_card = QFrame()
         white_card.setFixedSize(1000, 550)
         white_card.setStyleSheet("""
@@ -69,11 +73,22 @@ class ResultScreen(QWidget):
         for r, (cat, thres, stat) in enumerate(rows, start=1):
             cat_lbl = ClickableLabel(cat)
             cat_lbl.setFont(QFont("Arial", 14))
-            cat_lbl.setStyleSheet("color: #2c3e50;")  # No underline, consistent style
+            cat_lbl.setStyleSheet("""
+                QLabel {
+                    color: #2c3e50;
+                    font-weight: bold;
+                    padding: 4px 6px;
+                    border-bottom: 2px solid transparent;
+                }
+                QLabel:hover {
+                    color: #2c3e50;
+                    border-bottom: 2px solid #1a5276;
+                    background-color: #f4f6f7;
+                }
+            """)
+
             cat_lbl.setAlignment(Qt.AlignCenter)
             cat_lbl.clicked.connect(lambda c=cat: self.detail_requested.emit(c))
-
-
 
             thres_lbl = QLabel(thres)
             thres_lbl.setFont(QFont("Arial", 14))
@@ -112,10 +127,11 @@ class ResultScreen(QWidget):
         btn_row = QHBoxLayout()
         btn_row.setSpacing(30)
 
-        back_btn = QPushButton("Back")
+        continue_btn = QPushButton("Continue")
         repeat_btn = QPushButton("Repeat")
+        back_btn = QPushButton("Back")
 
-        for btn in [back_btn, repeat_btn]:
+        for btn in [continue_btn, repeat_btn, back_btn]:
             btn.setFixedSize(160, 50)
             btn.setFont(QFont("Arial", 14, QFont.Bold))
             btn.setStyleSheet("""
@@ -129,12 +145,13 @@ class ResultScreen(QWidget):
                 }
             """)
 
-        back_btn.clicked.connect(back_callback)
+        continue_btn.clicked.connect(back_callback)
         repeat_btn.clicked.connect(repeat_callback)
+        back_btn.clicked.connect(back1_callback)
 
-        btn_row.addWidget(back_btn)
-        btn_row.addStretch()
+        btn_row.addWidget(continue_btn)
         btn_row.addWidget(repeat_btn)
+        btn_row.addWidget(back_btn)
         card_layout.addLayout(btn_row)
 
         # Center the card in layout
