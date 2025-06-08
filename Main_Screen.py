@@ -228,7 +228,9 @@ class AIQualityControlUI(QWidget):
 
         self.result_card = ResultScreen(
             back_callback=self.open_welcome_screen,
-            repeat_callback=self.open_capturing_screen
+            repeat_callback=self.open_capturing_screen,
+            back1_callback= self.go_to_main_card
+            
         )
         self.result_card.setStyleSheet("background-color: #f0f2f5;")
         self.result_card.detail_requested.connect(self.open_detail_view)
@@ -328,3 +330,7 @@ if __name__ == "__main__":
     window = AIQualityControlUI()
     window.show()
     sys.exit(app.exec_())
+
+
+
+
